@@ -1,0 +1,16 @@
+PODS:
+  - ZQAlertController (0.1.0)
+
+DEPENDENCIES:
+  - ZQAlertController (from `../`)
+
+EXTERNAL SOURCES:
+  ZQAlertController:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  ZQAlertController: 606c98885e9320e30c45d206e78d916c1786bf3e
+
+PODFILE CHECKSUM: cba24261d8e0a07021b879712d8495a47f7d483f
+
+COCOAPODS: 1.5.3

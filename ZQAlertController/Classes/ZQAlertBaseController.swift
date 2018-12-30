@@ -73,6 +73,7 @@ class ZQAlertTransitionAnimator : NSObject {
     
     class func animator(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) -> ZQAlertTransitionAnimator {
         return ZQAlertTransitionAnimator.init(animationMode: animationMode, animationStyle: animationStyle)
+        
     }
 }
 

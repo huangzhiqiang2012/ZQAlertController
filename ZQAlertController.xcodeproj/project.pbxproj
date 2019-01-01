@@ -13,7 +13,7 @@
 		64B83BDA21DB8793004C1A10 /* ZQAlertController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64B83BD321DB8793004C1A10 /* ZQAlertController.framework */; };
 		64B83BDB21DB8793004C1A10 /* ZQAlertController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 64B83BD321DB8793004C1A10 /* ZQAlertController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		64B83BE521DB8AE5004C1A10 /* ZQAlertController.h in Headers */ = {isa = PBXBuildFile; fileRef = 64B83BE221DB8AE5004C1A10 /* ZQAlertController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		64B83BE621DB8AE5004C1A10 /* ZQAlertBaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B83BE321DB8AE5004C1A10 /* ZQAlertBaseController.swift */; };
+		64B83BE821DBAB82004C1A10 /* ZQAlertBaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B83BE321DB8AE5004C1A10 /* ZQAlertBaseController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -235,7 +235,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64B83BE621DB8AE5004C1A10 /* ZQAlertBaseController.swift in Sources */,
+				64B83BE821DBAB82004C1A10 /* ZQAlertBaseController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

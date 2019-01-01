@@ -11,7 +11,7 @@ import UIKit
 /***********自定义相关*************/
 // MARK:自定义log打印
 // Swift没有宏的概念,所以得在TARGET -> Build Setting -> Other Swift Flags的Debug状态加一个 -D DEBUG
-func ZQLog<T>(message: T, fileName: String = #file, methodName: String = #function, lineNumber: Int = #line) {
+public func ZQLog<T>(message: T, fileName: String = #file, methodName: String = #function, lineNumber: Int = #line) {
     #if DEBUG
     let fName = ((fileName as NSString).pathComponents.last!)
     print("\(fName).\(methodName)[\(lineNumber)]: \(message)")
@@ -20,7 +20,7 @@ func ZQLog<T>(message: T, fileName: String = #file, methodName: String = #functi
 
 // MARK: UIWindow extension
 extension UIWindow {
-    func topViewController() -> UIViewController? {
+    public func topViewController() -> UIViewController? {
         var topViewController = self.rootViewController
         while topViewController?.presentedViewController != nil {
             topViewController = topViewController?.presentedViewController
@@ -30,13 +30,13 @@ extension UIWindow {
 }
 
 // MARK: 动画类型
-enum ZQAlertAnimationMode:Int {
+public enum ZQAlertAnimationMode:Int {
     case present   = 0  ///< 弹出
     case dismiss   = 1  ///< 消失
 }
 
 // MARK: 动画弹出位置
-enum ZQAlertAnimationStyle:Int {
+public enum ZQAlertAnimationStyle:Int {
     case bottom   = 0  ///< 底部弹出
     case top      = 1  ///< 顶部弹出
     case left     = 2  ///< 左边弹出
@@ -46,32 +46,32 @@ enum ZQAlertAnimationStyle:Int {
 
 /***********ZQAlertTransitionAnimator*************/
 // MARK: 转场动画
-class ZQAlertTransitionAnimator : NSObject {
+public class ZQAlertTransitionAnimator : NSObject {
     
     fileprivate let duration = 0.25
     
     fileprivate var backgroundView:UIView?
     
     /// 动画类型
-    var animationMode:ZQAlertAnimationMode = .present
+    public var animationMode:ZQAlertAnimationMode = .present
     
     /// 动画弹出位置
-    var animationStyle:ZQAlertAnimationStyle = .bottom
+    public var animationStyle:ZQAlertAnimationStyle = .bottom
     
     /// 设置遮罩视图,如果只是颜色改变,直接设置maskColor即可
-    var containerView:UIView?
+    public var containerView:UIView?
     
     /// 设置遮罩背景颜色
-    var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
+    public var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
     
     // MARK: public
-    init(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) {
+    public init(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) {
         super.init()
         self.animationMode = animationMode
         self.animationStyle = animationStyle
     }
     
-    class func animator(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) -> ZQAlertTransitionAnimator {
+    public class func animator(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) -> ZQAlertTransitionAnimator {
         return ZQAlertTransitionAnimator.init(animationMode: animationMode, animationStyle: animationStyle)
     }
 }
@@ -180,11 +180,11 @@ extension ZQAlertTransitionAnimator {
 // MARK: UIViewControllerAnimatedTransitioning
 extension ZQAlertTransitionAnimator : UIViewControllerAnimatedTransitioning {
     
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+    public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return duration
     }
     
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+    public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         switch animationMode {
         case .present:
             presentTransition(transitionContext: transitionContext)
@@ -197,7 +197,7 @@ extension ZQAlertTransitionAnimator : UIViewControllerAnimatedTransitioning {
 
 /***********ZQAlertBaseController*************/
 // MARK: ZQAlertBaseControllerDelegate
-protocol ZQAlertBaseControllerDelegate : class, NSObjectProtocol {
+public protocol ZQAlertBaseControllerDelegate : class, NSObjectProtocol {
     func alertControllerViewDidAppear(alertController : ZQAlertBaseController)
     func alertControllerViewDidDisAppear(alertController : ZQAlertBaseController)
 }
@@ -213,7 +213,7 @@ protocol ZQAlertBaseControllerDelegate : class, NSObjectProtocol {
  * 2 也可以继承该类,然后自己添加控件(推荐该方法)
  *
  */
-class ZQAlertBaseController: UIViewController {
+public class ZQAlertBaseController: UIViewController {
     
     fileprivate var transitionAnimator:ZQAlertTransitionAnimator? = ZQAlertTransitionAnimator(animationMode: .present, animationStyle: .bottom)
     
@@ -233,25 +233,25 @@ class ZQAlertBaseController: UIViewController {
     }()
     
     /// 动画弹出位置
-    var animationStyle:ZQAlertAnimationStyle = .bottom
+    public var animationStyle:ZQAlertAnimationStyle = .bottom
     
     /// 设置遮罩视图,如果只是颜色改变,直接设置maskColor即可
-    var containerView:UIView?
+    public var containerView:UIView?
     
     /// 设置遮罩背景颜色
-    var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
+    public var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
     
     /// 点击背景自动dismiss
-    var autoFall:Bool = true
+    public var autoFall:Bool = true
     
-    weak var delegate:ZQAlertBaseControllerDelegate?
+    public weak var delegate:ZQAlertBaseControllerDelegate?
     
     // MARK: life cycle
     deinit {
         ZQLog(message: "--__--|| " + NSStringFromClass(self.classForCoder) + " dealloc")
     }
     
-    init(animationStyle:ZQAlertAnimationStyle) {
+    public init(animationStyle:ZQAlertAnimationStyle) {
         super.init(nibName: nil, bundle: nil)
         alertInitialize()
         self.animationStyle = animationStyle
@@ -268,16 +268,16 @@ class ZQAlertBaseController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func loadView() {
+    override public func loadView() {
         self.view = self.panel
     }
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.clear
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    override public func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if viewWillAppear {
             return
@@ -287,31 +287,31 @@ class ZQAlertBaseController: UIViewController {
         viewWillAppear = true
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    override public func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         delegate?.alertControllerViewDidAppear(alertController: self)
     }
     
-    override func didReceiveMemoryWarning() {
+    override public func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+    override public var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return presentingViewControllerSupportedInterfaceOrientation
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
+    override public var preferredStatusBarStyle: UIStatusBarStyle {
         return UIApplication.shared.statusBarStyle
     }
 }
 
 // MARK: public
 extension ZQAlertBaseController {
-    func showAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
+    public func showAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
         UIApplication.shared.keyWindow?.topViewController()?.present(self, animated: true, completion: completion)
     }
     
-    func dismissAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
+    public func dismissAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
         dismiss(animated: true, completion: completion)
     }
 }
@@ -339,14 +339,14 @@ extension ZQAlertBaseController {
 
 // MARK: UIViewControllerTransitioningDelegate
 extension ZQAlertBaseController : UIViewControllerTransitioningDelegate {
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         transitionAnimator = ZQAlertTransitionAnimator(animationMode: .present, animationStyle: animationStyle)
         transitionAnimator?.containerView = containerView
         transitionAnimator?.maskColor = maskColor
         return transitionAnimator
     }
     
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         transitionAnimator?.animationMode = .dismiss
         transitionAnimator?.animationStyle = animationStyle
         return transitionAnimator

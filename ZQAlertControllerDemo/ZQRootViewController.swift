@@ -7,7 +7,7 @@
 //
 
 import UIKit
-//import ZQAlertController
+import ZQAlertController
 
 // MARK: 根控制器
 class ZQRootViewController: UIViewController {
@@ -40,8 +40,8 @@ extension ZQRootViewController {
 // MARK: action
 extension ZQRootViewController {
     @objc fileprivate func actionForButton() -> Void {
-//        let vc:ZQAlertBaseController = ZQAlertBaseController(animationStyle: ZQAlertAnimationStyle.bottom)
-//        vc.showAlertController()
+        let vc:ZQAlertBaseController = ZQAlertBaseController(animationStyle: ZQAlertAnimationStyle.bottom)
+        vc.showAlertController()
     }
 }
 

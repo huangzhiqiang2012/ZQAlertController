@@ -40,8 +40,24 @@ extension ZQRootViewController {
 // MARK: action
 extension ZQRootViewController {
     @objc fileprivate func actionForButton() -> Void {
-        let vc:ZQAlertBaseController = ZQAlertBaseController(animationStyle: ZQAlertAnimationStyle.bottom)
-        vc.showAlertController()
+//        let contentView = UIView.init(frame: CGRect(x: 0, y: 0, width: 200, height: 100))
+//        contentView.backgroundColor = UIColor.red
+//        let alert:ZQAlertController = ZQAlertController.alert(withContentView: contentView)
+//        alert.showAlertController()
+        
+        ZQAlertStyleManager.default.contentViewStyle.cornerRadius = 15
+        ZQAlertStyleManager.default.titleStyle.textColor = UIColor.blue
+        ZQAlertStyleManager.default.titleStyle.font = UIFont.systemFont(ofSize: 24)
+        ZQAlertStyleManager.default.cancelButtonStyle.backgroundColor = UIColor.red
+        let alert:ZQAlertController = ZQAlertController.alert(withTitle:"Title", message: "地方地方大幅度费大幅度发对方答复的方师傅的说法是否第三方士大夫的说法水电费第三方第三方手动")
+        alert.animationStyle = .top
+        alert.addButton(withTitle: "Cancel", type: .cacel) {
+            ZQLog(message: "--__--|| Cancel")
+        }
+        alert.addButton(withTitle: "OK", type: .normal) {
+            ZQLog(message: "--__--|| OK")
+        }
+        alert.showAlertController()
     }
 }
 

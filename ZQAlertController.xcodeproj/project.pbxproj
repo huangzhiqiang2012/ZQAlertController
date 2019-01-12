@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6403789321E9F3AF000D28BA /* ZQAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403789121E9F313000D28BA /* ZQAlertController.swift */; };
+		6403789721E9F4F0000D28BA /* ZQAlertTransitionAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403789621E9F4F0000D28BA /* ZQAlertTransitionAnimator.swift */; };
+		6403789921E9F713000D28BA /* ZQAlertStyleManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403789821E9F713000D28BA /* ZQAlertStyleManager.swift */; };
+		6403789B21E9FEA7000D28BA /* ZQAlertTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403789A21E9FEA7000D28BA /* ZQAlertTools.swift */; };
 		643CCE7F21DA352900AF3760 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 643CCE7721DA352800AF3760 /* Assets.xcassets */; };
 		643CCE8721DA37DF00AF3760 /* ZQAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643CCE8521DA37DF00AF3760 /* ZQAppDelegate.swift */; };
 		643CCE8821DA37DF00AF3760 /* ZQRootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643CCE8621DA37DF00AF3760 /* ZQRootViewController.swift */; };
@@ -41,6 +45,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6403789121E9F313000D28BA /* ZQAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZQAlertController.swift; sourceTree = "<group>"; };
+		6403789621E9F4F0000D28BA /* ZQAlertTransitionAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZQAlertTransitionAnimator.swift; sourceTree = "<group>"; };
+		6403789821E9F713000D28BA /* ZQAlertStyleManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZQAlertStyleManager.swift; sourceTree = "<group>"; };
+		6403789A21E9FEA7000D28BA /* ZQAlertTools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZQAlertTools.swift; sourceTree = "<group>"; };
 		643CCE6021DA33AE00AF3760 /* ZQAlertControllerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZQAlertControllerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		643CCE7721DA352800AF3760 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		643CCE7D21DA352800AF3760 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -107,6 +115,10 @@
 			children = (
 				64B83BE421DB8AE5004C1A10 /* Info.plist */,
 				64B83BE321DB8AE5004C1A10 /* ZQAlertBaseController.swift */,
+				6403789A21E9FEA7000D28BA /* ZQAlertTools.swift */,
+				6403789621E9F4F0000D28BA /* ZQAlertTransitionAnimator.swift */,
+				6403789821E9F713000D28BA /* ZQAlertStyleManager.swift */,
+				6403789121E9F313000D28BA /* ZQAlertController.swift */,
 				64B83BE221DB8AE5004C1A10 /* ZQAlertController.h */,
 			);
 			name = ZQAlertController;
@@ -235,7 +247,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6403789921E9F713000D28BA /* ZQAlertStyleManager.swift in Sources */,
+				6403789B21E9FEA7000D28BA /* ZQAlertTools.swift in Sources */,
 				64B83BE821DBAB82004C1A10 /* ZQAlertBaseController.swift in Sources */,
+				6403789321E9F3AF000D28BA /* ZQAlertController.swift in Sources */,
+				6403789721E9F4F0000D28BA /* ZQAlertTransitionAnimator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

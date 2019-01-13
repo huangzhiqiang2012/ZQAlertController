@@ -16,8 +16,7 @@ class ZQRootViewController: UIViewController {
     fileprivate lazy var button:UIButton = {
         let button:UIButton = UIButton.init(type: UIButton.ButtonType.custom)
         button.backgroundColor = UIColor.brown
-        button.frame = CGRect.init(x: 0, y: 0, width: 90, height: 30)
-        button.center = view.center
+        button.frame = CGRect.init(x: 100, y: 100, width: 90, height: 30)
         button.setTitle("present", for: UIControl.State.normal)
         button.addTarget(self, action: #selector(actionForButton), for: UIControl.Event.touchUpInside)
         return button
@@ -45,12 +44,15 @@ extension ZQRootViewController {
 //        let alert:ZQAlertController = ZQAlertController.alert(withContentView: contentView)
 //        alert.showAlertController()
         
-        ZQAlertStyleManager.default.contentViewStyle.cornerRadius = 15
-        ZQAlertStyleManager.default.titleStyle.textColor = UIColor.blue
-        ZQAlertStyleManager.default.titleStyle.font = UIFont.systemFont(ofSize: 24)
-        ZQAlertStyleManager.default.cancelButtonStyle.backgroundColor = UIColor.red
+        let manager = ZQAlertStyleManager.default
+        manager.backgroundStyle.blur = true
+        manager.backgroundStyle.blurStyle.tintColor = UIColor.green.withAlphaComponent(0.2)
+        manager.animationStyle.animationFrom = .center
+        manager.contentViewStyle.cornerRadius = 15
+        manager.titleStyle.textColor = UIColor.blue
+        manager.titleStyle.font = UIFont.systemFont(ofSize: 24)
+        manager.cancelButtonStyle.backgroundColor = UIColor.red
         let alert:ZQAlertController = ZQAlertController.alert(withTitle:"Title", message: "地方地方大幅度费大幅度发对方答复的方师傅的说法是否第三方士大夫的说法水电费第三方第三方手动")
-        alert.animationStyle = .top
         alert.addButton(withTitle: "Cancel", type: .cacel) {
             ZQLog(message: "--__--|| Cancel")
         }

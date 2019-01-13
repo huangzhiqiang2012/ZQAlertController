@@ -15,7 +15,7 @@ public enum ZQAlertAnimationMode:Int {
 }
 
 // MARK: 动画弹出位置
-public enum ZQAlertAnimationStyle:Int {
+public enum ZQAlertAnimationFrom:Int {
     case bottom   = 0  ///< 底部弹出
     case top      = 1  ///< 顶部弹出
     case left     = 2  ///< 左边弹出
@@ -26,31 +26,46 @@ public enum ZQAlertAnimationStyle:Int {
 // MARK: 转场动画
 public class ZQAlertTransitionAnimator : NSObject {
     
-    fileprivate let duration = 0.25
-    
     fileprivate var backgroundView:UIView?
+    
+    fileprivate lazy var styleManager:ZQAlertStyleManager = {
+        let styleManager:ZQAlertStyleManager = ZQAlertStyleManager.default
+        return styleManager
+    }()
+    
+    /// 不用UIVisualEffectView做模糊效果,自定性较差
+//    fileprivate lazy var blurView:UIVisualEffectView = {
+//        let blurEffect = UIBlurEffect(style: .light)
+//        let blurView = UIVisualEffectView(effect: blurEffect)
+//        blurView.frame = UIScreen.main.bounds
+//        blurView.backgroundColor = styleManager.backgroundStyle.blurStyle.tintColor
+//        return blurView
+//    }()
+    
+    fileprivate lazy var blurView:UIImageView = {
+        var image:UIImage? = UIImage.zq_createImage(withColor: UIColor.clear, size: UIScreen.main.bounds.size)
+        let blurStyle:ZQAlertBackgroundBlurStyle = styleManager.backgroundStyle.blurStyle
+        let blurView:UIImageView = UIImageView(frame: UIScreen.main.bounds)
+        DispatchQueue.global().async {
+            image = image?.zq_applyBlur(WithRadius: blurStyle.radius, tintColor: blurStyle.tintColor, saturationDeltaFactor: blurStyle.saturationDeltaFactor, maskImage: blurStyle.maskImage)
+            DispatchQueue.main.async {
+                blurView.image = image
+            }
+        }
+        return blurView
+    }()
     
     /// 动画类型
     public var animationMode:ZQAlertAnimationMode = .present
     
-    /// 动画弹出位置
-    public var animationStyle:ZQAlertAnimationStyle = .bottom
-    
-    /// 设置遮罩视图,如果只是颜色改变,直接设置maskColor即可
-    public var containerView:UIView?
-    
-    /// 设置遮罩背景颜色
-    public var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
-    
     // MARK: public
-    public init(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) {
+    public init(animationMode:ZQAlertAnimationMode) {
         super.init()
         self.animationMode = animationMode
-        self.animationStyle = animationStyle
     }
     
-    public class func animator(animationMode:ZQAlertAnimationMode, animationStyle:ZQAlertAnimationStyle) -> ZQAlertTransitionAnimator {
-        return ZQAlertTransitionAnimator.init(animationMode: animationMode, animationStyle: animationStyle)
+    public class func animator(animationMode:ZQAlertAnimationMode) -> ZQAlertTransitionAnimator {
+        return ZQAlertTransitionAnimator.init(animationMode: animationMode)
     }
 }
 
@@ -70,16 +85,22 @@ public extension ZQAlertTransitionAnimator {
         contentView.addSubview(toView!)
         
         let backView = UIView.init(frame: (fromView?.bounds)!)
-        backView.backgroundColor = maskColor
+        backView.backgroundColor = styleManager.backgroundStyle.maskColor
         fromView?.addSubview(backView)
+        
+        if styleManager.backgroundStyle.blur {
+            backView.addSubview(blurView)
+        }
         backgroundView = backView
         
+        let duration = styleManager.animationStyle.duration
+        let animationFrom = styleManager.animationStyle.animationFrom
         let opacity = CABasicAnimation.init(keyPath: "opacity")
         opacity.fromValue = (0)
         opacity.duration = duration
         backgroundView?.layer.add(opacity, forKey: nil)
         
-        switch animationStyle {
+        switch animationFrom {
         case .top:
             toView?.frame = CGRect(x: 0, y: -contentView.zq_height, width: contentView.zq_width, height: contentView.zq_height)
             
@@ -97,11 +118,11 @@ public extension ZQAlertTransitionAnimator {
             toView?.transform = CGAffineTransform.init(scaleX: 0.4, y: 0.4)
             toView?.alpha = 0
         }
-        if (containerView != nil) {
-            toView?.addSubview(containerView!)
+        if let containerView = styleManager.contentViewStyle.containerView {
+            toView?.addSubview(containerView)
         }
         UIView.animate(withDuration: duration, animations: {
-            switch self.animationStyle {
+            switch animationFrom {
             case .top, .bottom, .left, .right:
                 toView?.frame = CGRect(x: 0, y: 0, width: contentView.zq_width, height: contentView.zq_height)
                 
@@ -125,12 +146,14 @@ public extension ZQAlertTransitionAnimator {
         toView?.tintAdjustmentMode = .normal
         toView?.isUserInteractionEnabled = false
         
+        let duration = styleManager.animationStyle.duration
+        let animationFrom = styleManager.animationStyle.animationFrom
         UIView.animate(withDuration: duration) {
             self.backgroundView?.alpha = 0
         }
         
         UIView.animate(withDuration: duration, animations: {
-            switch self.animationStyle {
+            switch animationFrom {
             case .top:
                 fromView?.frame = CGRect(x: 0, y: -contentView.zq_height, width: contentView.zq_width, height: contentView.zq_height)
                 
@@ -160,7 +183,7 @@ public extension ZQAlertTransitionAnimator {
 extension ZQAlertTransitionAnimator : UIViewControllerAnimatedTransitioning {
     
     public func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return duration
+        return styleManager.animationStyle.duration
     }
     
     public func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {

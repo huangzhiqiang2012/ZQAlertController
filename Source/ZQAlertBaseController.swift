@@ -28,34 +28,22 @@ public protocol ZQAlertBaseControllerDelegate : class, NSObjectProtocol {
  */
 public class ZQAlertBaseController: UIViewController {
     
-    fileprivate var transitionAnimator:ZQAlertTransitionAnimator? = ZQAlertTransitionAnimator(animationMode: .present, animationStyle: .bottom)
+    fileprivate var transitionAnimator:ZQAlertTransitionAnimator?
     
     fileprivate var viewWillAppear:Bool = false
     
     fileprivate var presentingViewControllerSupportedInterfaceOrientation : UIInterfaceOrientationMask = .portrait
+    
+    fileprivate lazy var styleManager:ZQAlertStyleManager = {
+        let styleManager:ZQAlertStyleManager = ZQAlertStyleManager.default
+        return styleManager
+    }()
     
     fileprivate lazy var panel:UIControl? = {
         let panel:UIControl = UIControl()
         panel.addTarget(self, action: #selector(actionForPanel), for: .touchUpInside)
         return panel
     }()
-    
-    fileprivate lazy var backgroundView:UIView? = {
-        let backgroundView:UIView = UIView()
-        return backgroundView
-    }()
-    
-    /// 动画弹出位置
-    public var animationStyle:ZQAlertAnimationStyle = .bottom
-    
-    /// 设置遮罩视图,如果只是颜色改变,直接设置maskColor即可
-    public var containerView:UIView?
-    
-    /// 设置遮罩背景颜色
-    public var maskColor:UIColor = UIColor.black.withAlphaComponent(0.5)
-    
-    /// 点击背景自动dismiss
-    public var autoFall:Bool = true
     
     public weak var delegate:ZQAlertBaseControllerDelegate?
     
@@ -64,10 +52,10 @@ public class ZQAlertBaseController: UIViewController {
         ZQLog(message: "--__--|| " + NSStringFromClass(self.classForCoder) + " dealloc")
     }
     
-    public init(animationStyle:ZQAlertAnimationStyle) {
+    public init(animationFrom:ZQAlertAnimationFrom) {
         super.init(nibName: nil, bundle: nil)
         alertInitialize()
-        self.animationStyle = animationStyle
+        styleManager.animationStyle.animationFrom = animationFrom
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -121,7 +109,7 @@ public class ZQAlertBaseController: UIViewController {
 // MARK: public
 public extension ZQAlertBaseController {
     public func showAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
-        UIApplication.shared.keyWindow?.zq_topViewController()?.present(self, animated: true, completion: completion)
+        UIApplication.zq_topWindow()?.zq_topViewController()?.present(self, animated: true, completion: completion)
     }
     
     public func dismissAlertController(completion: (() -> Swift.Void)? = nil) -> Void {
@@ -132,8 +120,6 @@ public extension ZQAlertBaseController {
 // MARK: private
 public extension ZQAlertBaseController {
     fileprivate func alertInitialize() -> Void {
-        autoFall = true
-        maskColor = UIColor.black.withAlphaComponent(0.5)
         viewWillAppear = false
         presentingViewControllerSupportedInterfaceOrientation = .portrait
         modalPresentationStyle = .custom
@@ -144,7 +130,7 @@ public extension ZQAlertBaseController {
 // MARK: action
 public extension ZQAlertBaseController {
     @objc fileprivate func actionForPanel() -> Void {
-        if autoFall {
+        if styleManager.backgroundStyle.canDismiss {
             dismissAlertController()
         }
     }
@@ -153,15 +139,12 @@ public extension ZQAlertBaseController {
 // MARK: UIViewControllerTransitioningDelegate
 extension ZQAlertBaseController : UIViewControllerTransitioningDelegate {
     public func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        transitionAnimator = ZQAlertTransitionAnimator(animationMode: .present, animationStyle: animationStyle)
-        transitionAnimator?.containerView = containerView
-        transitionAnimator?.maskColor = maskColor
+        transitionAnimator = ZQAlertTransitionAnimator(animationMode: .present)
         return transitionAnimator
     }
     
     public func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         transitionAnimator?.animationMode = .dismiss
-        transitionAnimator?.animationStyle = animationStyle
         return transitionAnimator
     }
 }

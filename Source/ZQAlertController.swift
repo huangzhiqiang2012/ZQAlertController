@@ -116,7 +116,7 @@ public extension ZQAlertController {
     }
     
     fileprivate func setupView() -> Void {
-        if containerView != nil {
+        if styleManager.contentViewStyle.containerView != nil {
             return
         }
         view.addSubview(contentView)
@@ -131,8 +131,8 @@ public extension ZQAlertController {
     /// 每次调用addSubview都会执行系统的viewDidLayoutSubviews,如果在viewDidLayoutSubviews方法里执行计算,不合理
     /// 但是如果在这里计算,此时view的frame都是0
     fileprivate func layoutSubViews() -> Void {
-        if let view = containerView {
-            view.center = UIApplication.shared.keyWindow?.center ?? CGPoint.zero
+        if let view = styleManager.contentViewStyle.containerView {
+            view.center = UIApplication.zq_topWindow()?.center ?? CGPoint.zero
             return
         }
         let titleStyle:ZQAlertTitleStyle = styleManager.titleStyle
@@ -235,7 +235,7 @@ public extension ZQAlertController {
     
     fileprivate func layoutContentView(contentHeight:CGFloat) -> Void {
         contentView.zq_height = contentHeight
-        contentView.center = UIApplication.shared.keyWindow?.center ?? CGPoint.zero
+        contentView.center = UIApplication.zq_topWindow()?.center ?? CGPoint.zero
     }
     
     fileprivate func layouButton(buttonHeight:CGFloat, contentHeight:CGFloat) -> Void {
@@ -262,7 +262,7 @@ public extension ZQAlertController {
             return
         }
             
-            /// 有两个按钮
+        /// 有两个按钮
         else if buttonCount == 2 {
             let buttonWidth = (contentWidth - separatorStyle.width) * 0.5
             let firstButton:UIButton = buttonArr.firstObject as! UIButton
@@ -288,25 +288,28 @@ public extension ZQAlertController {
 public extension ZQAlertController {
     
     @discardableResult
-    public class func alert(withTitle title:String?, message:String?, animationStyle:ZQAlertAnimationStyle? = .center) -> ZQAlertController {
+    public class func alert(withTitle title:String?, message:String?, animationFrom:ZQAlertAnimationFrom? = .center) -> ZQAlertController {
         if String.zq_isEmpty(str: title) && String.zq_isEmpty(str: message) {
             showException(withReason: "Can not show \(self): need title or message at least one")
         }
-        let alert:ZQAlertController = ZQAlertController(animationStyle:animationStyle ?? .center)
+        let alert:ZQAlertController = ZQAlertController(animationFrom:animationFrom ?? .center)
         alert.alertTitle = title
         alert.alertMessage = message
         return alert
     }
     
     @discardableResult
-    public class func alert(withContentView contentView:UIView?, animationStyle:ZQAlertAnimationStyle? = .center) -> ZQAlertController {
-        let alert:ZQAlertController = ZQAlertController(animationStyle:animationStyle ?? .center)
-        alert.containerView = contentView
+    public class func alert(withContentView contentView:UIView?, animationFrom:ZQAlertAnimationFrom? = .center) -> ZQAlertController {
+        if contentView == nil {
+            showException(withReason: "Can not show \(self): need a contentView")
+        }
+        let alert:ZQAlertController = ZQAlertController(animationFrom:animationFrom ?? .center)
+        ZQAlertStyleManager.default.contentViewStyle.containerView = contentView
         return alert
     }
     
     public func addButton(withTitle title:String, type:ZQAlertButtonStyle, click:ZQAlertButtonClick? = nil) -> Void {
-        if containerView != nil {
+        if styleManager.contentViewStyle.containerView != nil {
             ZQAlertController.showException(withReason: "You already has a custom contentView, shouldn't add any button")
         }
         if buttonArr.count >= 2 {
@@ -319,6 +322,7 @@ public extension ZQAlertController {
 // MARK: action
 public extension ZQAlertController {
     @objc fileprivate func actionForAlertButton(_ sender:UIButton) -> Void {
+        dismissAlertController()
         if sender.isEqual(leftButton) {
             if leftButtonClick != nil {
                 leftButtonClick!()

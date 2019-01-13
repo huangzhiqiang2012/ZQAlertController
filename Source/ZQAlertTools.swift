@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Accelerate
 
 // MARK:自定义log打印
 // Swift没有宏的概念,所以得在TARGET -> Build Setting -> Other Swift Flags的Debug状态加一个 -D DEBUG
@@ -33,10 +34,23 @@ public extension UIWindow {
     }
 }
 
+// MARK: UIApplication extension
+public extension UIApplication {
+    public class func zq_topWindow() -> UIWindow? {
+        let reversedWindows:[UIWindow] = UIApplication.shared.windows.reversed()
+        for window in reversedWindows {
+            if NSStringFromClass(window.classForCoder) == "UIWindow" && window.bounds.equalTo(UIScreen.main.bounds) {
+                return window
+            }
+        }
+        return UIApplication.shared.keyWindow
+    }
+}
+
 // MARK: UIImage extension
 public extension UIImage {
-    public class func zq_createImage(withColor color:UIColor) -> UIImage? {
-        let rect = CGRect(x: 0, y: 0, width: 1, height: 1)
+    public class func zq_createImage(withColor color:UIColor, size:CGSize? = CGSize(width: 1, height: 1)) -> UIImage? {
+        let rect = CGRect(x: 0, y: 0, width: size!.width, height: size!.height)
         UIGraphicsBeginImageContext(rect.size)
         let context = UIGraphicsGetCurrentContext()
         context?.setFillColor(color.cgColor)
@@ -44,6 +58,117 @@ public extension UIImage {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return image
+    }
+    
+    public func zq_applyBlur(WithRadius blurRadius:CGFloat, tintColor:UIColor?, saturationDeltaFactor: Double, maskImage:UIImage?) -> UIImage? {
+        let size:CGSize = self.size
+        if size.width < 1 || size.height < 1 || self.cgImage == nil || (maskImage != nil && (maskImage!.cgImage == nil))  {
+            return nil
+        }
+        let imageRect:CGRect = CGRect(origin: CGPoint.zero, size: size)
+        var effectImage:UIImage = self
+        let hasBlur:Bool = blurRadius > .ulpOfOne
+        let hasSaturationChange:Bool = abs(Float(saturationDeltaFactor) - 1.0) > .ulpOfOne
+        let screenScale:CGFloat = UIScreen.main.scale
+        if hasBlur || hasSaturationChange {
+            UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
+            guard let effectInContext:CGContext = UIGraphicsGetCurrentContext() else {
+                return nil
+            }
+            effectInContext.scaleBy(x: 1.0, y: -1.0)
+            effectInContext.translateBy(x: 0, y: -size.height)
+            effectInContext.draw(self.cgImage!, in: imageRect)
+            
+            var effectInBuffer = vImage_Buffer() /// 需要import Accelerate
+            effectInBuffer.data = effectInContext.data
+            effectInBuffer.width = vImagePixelCount(effectInContext.width)
+            effectInBuffer.height = vImagePixelCount(effectInContext.height)
+            effectInBuffer.rowBytes = effectInContext.bytesPerRow
+            
+            UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
+            guard let effectOutContext:CGContext = UIGraphicsGetCurrentContext() else {
+                return nil
+            }
+            var effectOutBuffer = vImage_Buffer()
+            effectOutBuffer.data = effectOutContext.data
+            effectOutBuffer.width = vImagePixelCount(effectOutContext.width)
+            effectOutBuffer.height = vImagePixelCount(effectOutContext.height)
+            effectOutBuffer.rowBytes = effectOutContext.bytesPerRow
+            
+            if hasBlur {
+                let inputRadius:Double = Double(blurRadius) * Double(screenScale)
+                var radius = floor(inputRadius * 3.0 * sqrt(2 * .pi) / 4 + 0.5)
+                let result = radius.truncatingRemainder(dividingBy: 2)
+                if result != 1 {
+                    radius += 1
+                }
+                var unsafePointer:UInt8 = 0
+                vImageBoxConvolve_ARGB8888(&effectInBuffer, &effectOutBuffer, nil, 0, 0, UInt32(radius), UInt32(radius), &unsafePointer, UInt32(kvImageEdgeExtend))
+                vImageBoxConvolve_ARGB8888(&effectOutBuffer, &effectInBuffer, nil, 0, 0, UInt32(radius), UInt32(radius), &unsafePointer, UInt32(kvImageEdgeExtend))
+                vImageBoxConvolve_ARGB8888(&effectInBuffer, &effectOutBuffer, nil, 0, 0, UInt32(radius), UInt32(radius), &unsafePointer, UInt32(kvImageEdgeExtend))
+            }
+            var effectImageBuffersAreSwapped:Bool = false
+            if hasSaturationChange {
+                let s:Double = saturationDeltaFactor
+                let floatingPointSaturationMatrix:[Double] = [
+                    0.0722 + 0.9278 * s,  0.0722 - 0.0722 * s,  0.0722 - 0.0722 * s,  0,
+                    0.7152 - 0.7152 * s,  0.7152 + 0.2848 * s,  0.7152 - 0.7152 * s,  0,
+                    0.2126 - 0.2126 * s,  0.2126 - 0.2126 * s,  0.2126 + 0.7873 * s,  0,
+                    0,                    0,                    0,                    1,
+                ]
+                let divisor:Int32 = 256
+                let matrixSize:Int = MemoryLayout.size(ofValue: floatingPointSaturationMatrix) / MemoryLayout.size(ofValue: floatingPointSaturationMatrix[0])
+                var saturationMatrix = [Int16]()
+                for _ in 0...matrixSize {
+                    saturationMatrix.append(0)
+                }
+                for i in 0...matrixSize {
+                    saturationMatrix[i] = Int16(roundf(Float(floatingPointSaturationMatrix[i]) * Float(divisor)))
+                }
+                if hasBlur {
+                    vImageMatrixMultiply_ARGB8888(&effectOutBuffer, &effectInBuffer, saturationMatrix, divisor, nil, nil, UInt32(kvImageNoFlags))
+                    effectImageBuffersAreSwapped = true
+                }
+                else {
+                    vImageMatrixMultiply_ARGB8888(&effectInBuffer, &effectOutBuffer, saturationMatrix, divisor, nil, nil, UInt32(kvImageNoFlags))
+                }
+            }
+            if !effectImageBuffersAreSwapped {
+                effectImage = UIGraphicsGetImageFromCurrentImageContext()!
+                UIGraphicsEndImageContext()
+            }
+            if effectImageBuffersAreSwapped {
+                effectImage = UIGraphicsGetImageFromCurrentImageContext()!
+                UIGraphicsEndImageContext()
+            }
+        }
+        UIGraphicsBeginImageContextWithOptions(size, false, screenScale)
+        guard let outputContext:CGContext = UIGraphicsGetCurrentContext() else {
+            return nil
+        }
+        outputContext.scaleBy(x: 1.0, y: -1.0)
+        outputContext.translateBy(x: 0, y: -size.height)
+        outputContext.draw(self.cgImage!, in: imageRect)
+        
+        if hasBlur {
+            outputContext.saveGState()
+            if maskImage != nil {
+                outputContext.clip(to: imageRect, mask: maskImage!.cgImage!)
+            }
+            else {
+                outputContext.draw(effectImage.cgImage!, in: imageRect)
+            }
+            outputContext.restoreGState()
+        }
+        if tintColor != nil {
+            outputContext.saveGState()
+            outputContext.setFillColor(tintColor!.cgColor)
+            outputContext.fill(imageRect)
+            outputContext.restoreGState()
+        }
+        let outputImage:UIImage? = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return outputImage
     }
 }
 
@@ -134,6 +259,17 @@ public extension UIView {
             var center = self.center
             center.y = newCentY
             self.center = center
+        }
+    }
+    
+    public var zq_size:CGSize {
+        get {
+            return self.frame.size
+        }
+        set(newSize) {
+            var frame = self.frame
+            frame.size = newSize
+            self.frame = frame
         }
     }
 }

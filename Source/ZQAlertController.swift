@@ -33,7 +33,7 @@ public class ZQAlertController: ZQAlertBaseController {
         return buttonArr
     }()
     
-    fileprivate lazy var contentView:UIView = {
+    public lazy var contentView:UIView = {
         let contentViewStyle:ZQAlertContentViewStyle = styleManager.contentViewStyle
         let contentView:UIView = UIView(frame: CGRect(x: 0, y: 0, width: contentViewStyle.width, height: 0))
         contentView.backgroundColor = contentViewStyle.backgroundColor
@@ -288,22 +288,22 @@ public extension ZQAlertController {
 public extension ZQAlertController {
     
     @discardableResult
-    public class func alert(withTitle title:String?, message:String?, animationFrom:ZQAlertAnimationFrom? = .center) -> ZQAlertController {
+    public class func alert(withTitle title:String?, message:String?) -> ZQAlertController {
         if String.zq_isEmpty(str: title) && String.zq_isEmpty(str: message) {
             showException(withReason: "Can not show \(self): need title or message at least one")
         }
-        let alert:ZQAlertController = ZQAlertController(animationFrom:animationFrom ?? .center)
+        let alert:ZQAlertController = ZQAlertController()
         alert.alertTitle = title
         alert.alertMessage = message
         return alert
     }
     
     @discardableResult
-    public class func alert(withContentView contentView:UIView?, animationFrom:ZQAlertAnimationFrom? = .center) -> ZQAlertController {
+    public class func alert(withContentView contentView:UIView?) -> ZQAlertController {
         if contentView == nil {
             showException(withReason: "Can not show \(self): need a contentView")
         }
-        let alert:ZQAlertController = ZQAlertController(animationFrom:animationFrom ?? .center)
+        let alert:ZQAlertController = ZQAlertController()
         ZQAlertStyleManager.default.contentViewStyle.containerView = contentView
         return alert
     }

@@ -43,11 +43,20 @@ public class ZQAlertTransitionAnimator : NSObject {
 //    }()
     
     fileprivate lazy var blurView:UIImageView = {
-        var image:UIImage? = UIImage.zq_createImage(withColor: UIColor.clear, size: UIScreen.main.bounds.size)
+        var image:UIImage? = styleManager.backgroundStyle.blurStyle.backGroundImage ?? UIImage.zq_createImage(withColor: UIColor.clear, size: UIScreen.main.bounds.size)
         let blurStyle:ZQAlertBackgroundBlurStyle = styleManager.backgroundStyle.blurStyle
         let blurView:UIImageView = UIImageView(frame: UIScreen.main.bounds)
+        
+        /// 渲染模糊图片放在子线程
         DispatchQueue.global().async {
             image = image?.zq_applyBlur(WithRadius: blurStyle.radius, tintColor: blurStyle.tintColor, saturationDeltaFactor: blurStyle.saturationDeltaFactor, maskImage: blurStyle.maskImage)
+            
+            /// 模糊照片,用高斯模糊算法生成,效率也快,但是相比第一种方法,扩展性较差
+//            image = image?.zq_blurImage(withBlurLevel: 0.1)
+            
+            /// 用高斯模糊滤镜生成,相比上面的两种用算法计算,这个方法更加耗时--__--||
+//            image = image?.zq_blurImage(WithRadius: blurStyle.radius)
+            
             DispatchQueue.main.async {
                 blurView.image = image
             }
@@ -78,6 +87,8 @@ public extension ZQAlertTransitionAnimator {
         let fromController = transitionContext.viewController(forKey: .from)
         let fromView = fromController?.view
         fromView?.tintAdjustmentMode = .normal
+        
+        /// 先禁止用户交互,dismiss时再重新开启
         fromView?.isUserInteractionEnabled = false
         
         let toController = transitionContext.viewController(forKey: .to)
@@ -93,12 +104,26 @@ public extension ZQAlertTransitionAnimator {
         }
         backgroundView = backView
         
-        let duration = styleManager.animationStyle.duration
-        let animationFrom = styleManager.animationStyle.animationFrom
-        let opacity = CABasicAnimation.init(keyPath: "opacity")
-        opacity.fromValue = (0)
-        opacity.duration = duration
-        backgroundView?.layer.add(opacity, forKey: nil)
+        /// 自定义present动画
+        if let presentAnimation = styleManager.animationStyle.presentAnimation, let key = styleManager.animationStyle.presentAnimationKey {
+            transitionContext.completeTransition(true)
+            
+            /// 确保toView已经显示,不然虽然也能显示,但是视图的所有点击事件无效,因为无父视图
+            toView?.frame = CGRect(x: 0, y: 0, width: contentView.zq_width, height: contentView.zq_height)
+            
+            /// 延迟0.01s,确保contentView已经显示了,再来执行动画,动画才能显示完整
+            DispatchQueue.main.asyncAfter(deadline:DispatchTime.now() + 0.01) {
+                let view = (toController as! ZQAlertController).contentView
+                view.layer.removeAllAnimations()
+                view.layer.add(presentAnimation, forKey: key)
+            }
+            return
+        }
+        
+        /// 默认present动画
+        let animationStyle = styleManager.animationStyle
+        let duration = animationStyle.duration
+        let animationFrom = animationStyle.animationFrom
         
         switch animationFrom {
         case .top:
@@ -115,20 +140,22 @@ public extension ZQAlertTransitionAnimator {
             
         case .center:
             toView?.frame = CGRect(x: 0, y: 0, width: contentView.zq_width, height: contentView.zq_height)
-            toView?.transform = CGAffineTransform.init(scaleX: 0.4, y: 0.4)
+            toView?.transform = CGAffineTransform.init(scaleX: animationStyle.minScale, y: animationStyle.minScale)
             toView?.alpha = 0
         }
         if let containerView = styleManager.contentViewStyle.containerView {
             toView?.addSubview(containerView)
         }
-        UIView.animate(withDuration: duration, animations: {
+        
+        UIView.animate(withDuration: duration, delay: 0, options: .curveLinear, animations: {
+            toView?.alpha = 1
+        }, completion: nil)
+        UIView.animate(withDuration: duration, delay: 0, usingSpringWithDamping: animationStyle.springDamping, initialSpringVelocity: animationStyle.springVelocity, options: .allowUserInteraction, animations: {
             switch animationFrom {
             case .top, .bottom, .left, .right:
                 toView?.frame = CGRect(x: 0, y: 0, width: contentView.zq_width, height: contentView.zq_height)
-                
             case .center:
                 toView?.transform = CGAffineTransform.identity
-                toView?.alpha = 1
             }
         }) { (finish) in
             transitionContext.completeTransition(true)
@@ -146,8 +173,29 @@ public extension ZQAlertTransitionAnimator {
         toView?.tintAdjustmentMode = .normal
         toView?.isUserInteractionEnabled = false
         
-        let duration = styleManager.animationStyle.duration
-        let animationFrom = styleManager.animationStyle.animationFrom
+        /// 自定义dismiss动画
+        if let dismissAnimation = styleManager.animationStyle.dismissAnimation, let key = styleManager.animationStyle.dismissAnimationKey {
+            let view = (fromController as! ZQAlertController).contentView
+            view.layer.removeAllAnimations()
+            view.layer.add(dismissAnimation, forKey: key)
+            UIView.animate(withDuration: dismissAnimation.duration, animations: {
+                view.alpha = 0
+            }) { (finish) in
+                self.backgroundView?.removeFromSuperview()
+                fromView?.removeFromSuperview()
+                
+                /// 开启底部视图用户交互,present时并禁用
+                toView?.isUserInteractionEnabled = true
+                transitionContext.completeTransition(true)
+            }
+            return
+        }
+        
+        /// 默认dismiss动画
+        let animationStyle = styleManager.animationStyle
+        let duration = animationStyle.duration
+        let animationFrom = animationStyle.animationFrom
+        
         UIView.animate(withDuration: duration) {
             self.backgroundView?.alpha = 0
         }
@@ -167,7 +215,7 @@ public extension ZQAlertTransitionAnimator {
                 fromView?.frame = CGRect(x: contentView.zq_width, y: 0, width: contentView.zq_width, height: contentView.zq_height)
                 
             case .center:
-                fromView?.transform = CGAffineTransform.init(scaleX: 0.1, y: 0.1)
+                fromView?.transform = CGAffineTransform.init(scaleX: animationStyle.minScale, y: animationStyle.minScale)
                 fromView?.alpha = 0
             }
         }) { (finish) in

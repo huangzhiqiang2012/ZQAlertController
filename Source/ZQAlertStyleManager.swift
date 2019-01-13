@@ -19,16 +19,45 @@ public enum ZQAlertButtonStyle {
 // MARK: 弹窗动画样式模型
 public class ZQAlertAnimationdStyle: NSObject {
     
-    /// 动画弹出位置
+    /// 动画弹出位置,
+    /// 如果有自定义 presentAnimation dismissAnimation则设置无效
     public var animationFrom:ZQAlertAnimationFrom = .center
     
     /// 动画时间
+    /// 如果有自定义 presentAnimation dismissAnimation则设置无效
     public var duration = 0.25
+    
+    /// x y 方向上的最小比例,只有当 animationFrom = .center时设置才有效
+    /// 如果有自定义 presentAnimation dismissAnimation则设置无效
+    public var minScale:CGFloat = 0.1
+    
+    /// 弹簧阻尼
+    /// 如果有自定义 presentAnimation dismissAnimation则设置无效
+    public var springDamping:CGFloat = 0.8
+    
+    /// 弹簧速度
+    /// 如果有自定义 presentAnimation dismissAnimation则设置无效
+    public var springVelocity:CGFloat = 30
+    
+    /// 自定义present动画
+    public var presentAnimation:CAAnimation?
+    
+    /// 自定义present动画key
+    public var presentAnimationKey:String?
+    
+    /// 自定义dismiss动画
+    public var dismissAnimation:CAAnimation?
+    
+    /// 自定义dismiss动画key
+    public var dismissAnimationKey:String?
 }
 
 /*****************ZQAlertBackgroundBlurStyle***********************/
 // MARK: 弹窗背景模糊样式模型
 public class ZQAlertBackgroundBlurStyle: NSObject {
+    
+    /// 背景图片,默认是一张屏幕大小的clearColor的图片
+    public var backGroundImage:UIImage?
     
     /// 半径
     public var radius:CGFloat = 4

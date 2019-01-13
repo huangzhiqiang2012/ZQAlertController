@@ -60,6 +60,7 @@ public extension UIImage {
         return image
     }
     
+    /// 模糊照片,用高斯模糊算法生成
     public func zq_applyBlur(WithRadius blurRadius:CGFloat, tintColor:UIColor?, saturationDeltaFactor: Double, maskImage:UIImage?) -> UIImage? {
         let size:CGSize = self.size
         if size.width < 1 || size.height < 1 || self.cgImage == nil || (maskImage != nil && (maskImage!.cgImage == nil))  {
@@ -153,7 +154,7 @@ public extension UIImage {
         if hasBlur {
             outputContext.saveGState()
             if maskImage != nil {
-                outputContext.clip(to: imageRect, mask: maskImage!.cgImage!)
+                outputContext.draw(maskImage!.cgImage!, in: imageRect)
             }
             else {
                 outputContext.draw(effectImage.cgImage!, in: imageRect)
@@ -169,6 +170,66 @@ public extension UIImage {
         let outputImage:UIImage? = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return outputImage
+    }
+    
+    /// 模糊照片,用高斯模糊算法生成,效率也快,但是相比第一种方法,扩展性较差
+    public func zq_blurImage(withBlurLevel blurLevel:CGFloat) -> UIImage? {
+        var blur = blurLevel
+        if blur < 0 || blur > 1 {
+            blur = 0.5
+        }
+        var boxSize:Int = Int(blur * 100)
+        boxSize = boxSize - (boxSize % 2) + 1
+        let image:CGImage = self.cgImage!
+        var inBuffer = vImage_Buffer()
+        var outBuffer = vImage_Buffer()
+        let inProvider = image.dataProvider
+        let inBitmapData = inProvider?.data
+        inBuffer.width = vImagePixelCount(image.width)
+        inBuffer.height = vImagePixelCount(image.height)
+        inBuffer.rowBytes = image.bytesPerRow
+        inBuffer.data = UnsafeMutableRawPointer(mutating: CFDataGetBytePtr(inBitmapData))
+        
+        let pixelBuffer = malloc(image.bytesPerRow * image.height)
+        outBuffer.width = vImagePixelCount(image.width)
+        outBuffer.height = vImagePixelCount(image.height)
+        outBuffer.rowBytes = image.bytesPerRow
+        outBuffer.data = pixelBuffer
+        
+        var error = vImageBoxConvolve_ARGB8888(&inBuffer, &outBuffer, nil, vImagePixelCount(0), vImagePixelCount(0), UInt32(boxSize), UInt32(boxSize), nil, vImage_Flags(kvImageEdgeExtend))
+        if kvImageNoError != error {
+            error = vImageBoxConvolve_ARGB8888(&inBuffer, &outBuffer, nil, vImagePixelCount(0), vImagePixelCount(0), UInt32(boxSize), UInt32(boxSize), nil, vImage_Flags(kvImageEdgeExtend))
+            if kvImageNoError != error {
+                error = vImageBoxConvolve_ARGB8888(&inBuffer, &outBuffer, nil, vImagePixelCount(0), vImagePixelCount(0), UInt32(boxSize), UInt32(boxSize), nil, vImage_Flags(kvImageEdgeExtend))
+            }
+        }
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(data: outBuffer.data,
+                            width: Int(outBuffer.width),
+                            height: Int(outBuffer.height),
+                            bitsPerComponent: 8,
+                            bytesPerRow: outBuffer.rowBytes,
+                            space: colorSpace,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        let imageRef = ctx!.makeImage()
+        free(pixelBuffer)
+        return UIImage(cgImage: imageRef!)
+    }
+    
+    /// 模糊照片,用高斯模糊滤镜生成,相比上面的两种用算法计算,这个方法更加耗时--__--||
+    public func zq_blurImage(WithRadius blurRadius:CGFloat) -> UIImage? {
+        let inputImage = CIImage(image: self)
+        let filter = CIFilter(name: "CIGaussianBlur")!
+        filter.setValue(inputImage, forKey: kCIInputImageKey)
+        filter.setValue(blurRadius, forKey: kCIInputRadiusKey)
+        guard let outputCIImage = filter.outputImage  else {
+            return nil
+        }
+        let context:CIContext = CIContext(options: nil)
+        guard let cgImage = context.createCGImage(outputCIImage, from: outputCIImage.extent)  else {
+            return nil
+        }
+        return UIImage(cgImage: cgImage)
     }
 }
 

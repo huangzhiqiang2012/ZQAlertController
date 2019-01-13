@@ -46,8 +46,30 @@ extension ZQRootViewController {
         
         let manager = ZQAlertStyleManager.default
         manager.backgroundStyle.blur = true
-        manager.backgroundStyle.blurStyle.tintColor = UIColor.green.withAlphaComponent(0.2)
-        manager.animationStyle.animationFrom = .center
+        manager.backgroundStyle.blurStyle.radius = 1
+        manager.backgroundStyle.blurStyle.backGroundImage = UIImage(imageLiteralResourceName: "fire")
+//        manager.backgroundStyle.blurStyle.maskImage = UIImage(imageLiteralResourceName: "fire")
+        
+        manager.animationStyle.animationFrom = .right
+        
+        let transitionAni = CATransition()
+        transitionAni.type = CATransitionType(rawValue: "pageUnCurl")
+        transitionAni.subtype = CATransitionSubtype.fromLeft
+        transitionAni.startProgress = 0
+        transitionAni.endProgress = 1
+        transitionAni.duration = 1
+        manager.animationStyle.presentAnimation = transitionAni
+        manager.animationStyle.presentAnimationKey = "transition";
+        
+        let transitionAni1 = CATransition()
+        transitionAni1.type = CATransitionType(rawValue: "pageCurl")
+        transitionAni1.subtype = CATransitionSubtype.fromRight
+        transitionAni1.startProgress = 0
+        transitionAni1.endProgress = 1
+        transitionAni1.duration = 1
+        manager.animationStyle.dismissAnimation = transitionAni1
+        manager.animationStyle.dismissAnimationKey = "transition";
+        
         manager.contentViewStyle.cornerRadius = 15
         manager.titleStyle.textColor = UIColor.blue
         manager.titleStyle.font = UIFont.systemFont(ofSize: 24)

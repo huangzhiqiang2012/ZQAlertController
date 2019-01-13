@@ -52,12 +52,6 @@ public class ZQAlertBaseController: UIViewController {
         ZQLog(message: "--__--|| " + NSStringFromClass(self.classForCoder) + " dealloc")
     }
     
-    public init(animationFrom:ZQAlertAnimationFrom) {
-        super.init(nibName: nil, bundle: nil)
-        alertInitialize()
-        styleManager.animationStyle.animationFrom = animationFrom
-    }
-    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         alertInitialize()

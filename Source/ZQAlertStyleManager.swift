@@ -187,6 +187,23 @@ public class ZQAlertSeparatorStyle: NSObject {
     public var color:UIColor = ZQColor(red: 200, green: 200, blue: 205)
 }
 
+/*****************ZQAlertKeyboardStyle***********************/
+// MARK: 弹窗键盘样式模型
+public class ZQAlertKeyboardStyle: NSObject {
+    
+    /// 键盘弹起时,内容视图底部距离键盘顶部的距离,也可以自己在showClosure和hideClosure里做处理
+    /// 只有当自定义内容视图,同时内容视图中含有输入相关的视图时,设置才有效
+    public var gap:CGFloat = 50
+    
+    /// 键盘弹起时的回调
+    /// 只有当自定义内容视图,同时内容视图中含有输入相关的视图时,设置才有效
+    public var showClosure:ZQAlertKeyboardShowClosure?
+    
+    /// 键盘收起时的回调
+    /// 只有当自定义内容视图,同时内容视图中含有输入相关的视图时,设置才有效
+    public var hideClosure:ZQAlertKeyboardHideClosure?
+}
+
 /*****************ZQAlertStyleManager***********************/
 // MARK: 弹窗类型管理器,单例,方便设置全局弹窗样式
 public class ZQAlertStyleManager: NSObject {
@@ -214,6 +231,9 @@ public class ZQAlertStyleManager: NSObject {
     
     /// 分割线样式
     public var separatorStyle:ZQAlertSeparatorStyle = ZQAlertSeparatorStyle()
+    
+    /// 键盘样式
+    public var keyboardStyle:ZQAlertKeyboardStyle = ZQAlertKeyboardStyle()
 
     /// 单例
     public static let `default` = ZQAlertStyleManager()

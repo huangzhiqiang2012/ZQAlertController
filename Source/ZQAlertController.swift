@@ -68,6 +68,11 @@ public class ZQAlertController: ZQAlertBaseController {
         return contentTextView
     }()
     
+    fileprivate lazy var keyboardManager:ZQAlertKeyboardManager = {
+        let keyboardManager:ZQAlertKeyboardManager = ZQAlertKeyboardManager()
+        return keyboardManager
+    }()
+    
     // MARK: life cycle
     override public func viewDidLoad() {
         super.viewDidLoad()
@@ -116,7 +121,11 @@ public extension ZQAlertController {
     }
     
     fileprivate func setupView() -> Void {
-        if styleManager.contentViewStyle.containerView != nil {
+        if let containerView = styleManager.contentViewStyle.containerView {
+            let containInputView:Bool = containerView.zq_containInputView()
+            if containInputView {
+                keyboardManager.manager(withTargetView: containerView)
+            }
             return
         }
         view.addSubview(contentView)

@@ -333,13 +333,31 @@ public extension UIView {
             self.frame = frame
         }
     }
+    
+    public func zq_containInputView() -> Bool {
+        for view:UIView in subviews {
+            if view.isKind(of: UITextField.classForCoder()) || view.isKind(of: UITextView.classForCoder()) {
+                return true
+            }
+            let contain:Bool = view.zq_containInputView()
+            if contain {
+                return true
+            }
+            continue
+        }
+        return false
+    }
 }
 
 // MARK:UI相关
-let ZQScreenW = UIScreen.main.bounds.size.width
+let ZQScreenW:CGFloat = UIScreen.main.bounds.size.width
 
-let ZQScreenH = UIScreen.main.bounds.size.height
+let ZQScreenH:CGFloat = UIScreen.main.bounds.size.height
 
-let ZQDefaultTextColor = ZQColor(red: 0, green: 0, blue: 0)
+let ZQDefaultTextColor:UIColor = ZQColor(red: 0, green: 0, blue: 0)
 
 public typealias ZQAlertButtonClick = () -> ()
+
+public typealias ZQAlertKeyboardShowClosure = (_ keyboardHeight:CGFloat, _ duration:CGFloat) -> ()
+
+public typealias ZQAlertKeyboardHideClosure = (_ duration:CGFloat) -> ()

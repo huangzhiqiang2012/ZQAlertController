@@ -124,6 +124,7 @@ public extension ZQAlertBaseController {
 // MARK: action
 public extension ZQAlertBaseController {
     @objc fileprivate func actionForPanel() -> Void {
+        view.endEditing(true)
         if styleManager.backgroundStyle.canDismiss {
             dismissAlertController()
         }

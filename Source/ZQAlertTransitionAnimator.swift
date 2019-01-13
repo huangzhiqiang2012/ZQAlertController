@@ -104,6 +104,10 @@ public extension ZQAlertTransitionAnimator {
         }
         backgroundView = backView
         
+        if let containerView = styleManager.contentViewStyle.containerView {
+            toView?.addSubview(containerView)
+        }
+        
         /// 自定义present动画
         if let presentAnimation = styleManager.animationStyle.presentAnimation, let key = styleManager.animationStyle.presentAnimationKey {
             transitionContext.completeTransition(true)
@@ -113,7 +117,7 @@ public extension ZQAlertTransitionAnimator {
             
             /// 延迟0.01s,确保contentView已经显示了,再来执行动画,动画才能显示完整
             DispatchQueue.main.asyncAfter(deadline:DispatchTime.now() + 0.01) {
-                let view = (toController as! ZQAlertController).contentView
+                let view = self.styleManager.contentViewStyle.containerView ?? (toController as! ZQAlertController).contentView
                 view.layer.removeAllAnimations()
                 view.layer.add(presentAnimation, forKey: key)
             }
@@ -142,9 +146,6 @@ public extension ZQAlertTransitionAnimator {
             toView?.frame = CGRect(x: 0, y: 0, width: contentView.zq_width, height: contentView.zq_height)
             toView?.transform = CGAffineTransform.init(scaleX: animationStyle.minScale, y: animationStyle.minScale)
             toView?.alpha = 0
-        }
-        if let containerView = styleManager.contentViewStyle.containerView {
-            toView?.addSubview(containerView)
         }
         
         UIView.animate(withDuration: duration, delay: 0, options: .curveLinear, animations: {
@@ -175,7 +176,7 @@ public extension ZQAlertTransitionAnimator {
         
         /// 自定义dismiss动画
         if let dismissAnimation = styleManager.animationStyle.dismissAnimation, let key = styleManager.animationStyle.dismissAnimationKey {
-            let view = (fromController as! ZQAlertController).contentView
+            let view = self.styleManager.contentViewStyle.containerView ?? (fromController as! ZQAlertController).contentView
             view.layer.removeAllAnimations()
             view.layer.add(dismissAnimation, forKey: key)
             UIView.animate(withDuration: dismissAnimation.duration, animations: {

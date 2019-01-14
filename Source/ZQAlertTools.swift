@@ -253,6 +253,14 @@ public extension NSAttributedString {
         let rect = self.boundingRect(with: CGSize(width: maxWidth, height: CGFloat(MAXFLOAT)), options: .usesLineFragmentOrigin, context: nil)
         return CGSize(width:CGFloat(ceilf(Float(rect.size.width))), height: CGFloat(ceilf(Float(rect.size.height))))
     }
+    
+    public static func zq_isEmpty(str:NSAttributedString?) -> Bool {
+        if let content = str {
+            return content.string.isEmpty
+        } else {
+            return true
+        }
+    }
 }
 
 // MARK: UIView extension

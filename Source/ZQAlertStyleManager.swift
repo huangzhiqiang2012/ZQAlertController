@@ -11,8 +11,8 @@ import UIKit
 /*****************ZQAlertButtonStyle***********************/
 // MARK: 按钮样式枚举
 public enum ZQAlertButtonStyle {
-    case normal    ///< 普通
-    case cacel     ///< 取消
+    case normal     ///< 普通
+    case cancel     ///< 取消
 }
 
 /*****************ZQAlertAnimationdStyle***********************/
@@ -116,16 +116,22 @@ public class ZQAlertTextStyle: NSObject {
     /// 有标题和内容时的标题/内容边距
     public var insets:UIEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
     
-    /// 字体
-    public var font:UIFont = UIFont.boldSystemFont(ofSize: 17)
-    
     /// 背景颜色
     public var backgroundColor:UIColor = UIColor.clear
     
+    /// 属性字符串,如果有设置,优先显示,忽略font textColor textAlignment
+    public var attributedStr:NSAttributedString?
+    
+    /// 字体
+    /// 如果有设置attributedStr,则设置无效
+    public var font:UIFont = UIFont.boldSystemFont(ofSize: 17)
+    
     /// 文字颜色
+    /// 如果有设置attributedStr,则设置无效
     public var textColor:UIColor = ZQDefaultTextColor
     
     /// 文字对齐方式
+    /// 如果有设置attributedStr,则设置无效
     public var textAlignment:NSTextAlignment = .center
 }
 

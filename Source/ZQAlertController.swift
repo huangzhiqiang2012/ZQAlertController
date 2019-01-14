@@ -47,9 +47,13 @@ public class ZQAlertController: ZQAlertBaseController {
         let titleStyle:ZQAlertTitleStyle = styleManager.titleStyle
         let titleTextView:UITextView = UITextView(frame: CGRect(x: 0, y: 0, width: styleManager.contentViewStyle.width, height: 0))
         titleTextView.backgroundColor = titleStyle.backgroundColor
-        titleTextView.font = titleStyle.font
-        titleTextView.textColor = titleStyle.textColor
-        titleTextView.textAlignment = titleStyle.textAlignment
+        guard let attStr = titleStyle.attributedStr else {
+            titleTextView.font = titleStyle.font
+            titleTextView.textColor = titleStyle.textColor
+            titleTextView.textAlignment = titleStyle.textAlignment
+            return titleTextView
+        }
+        titleTextView.attributedText = attStr
         titleTextView.isEditable = false
         titleTextView.isSelectable = false
         return titleTextView
@@ -60,9 +64,12 @@ public class ZQAlertController: ZQAlertBaseController {
         let contentStyle:ZQAlertContentStyle = styleManager.contentStyle
         let contentTextView:UITextView = UITextView(frame: CGRect(x: 0, y: 0, width: styleManager.contentViewStyle.width, height: 0))
         contentTextView.backgroundColor = contentStyle.backgroundColor
-        contentTextView.font = contentStyle.font
-        contentTextView.textColor = contentStyle.textColor
-        contentTextView.textAlignment = contentStyle.textAlignment
+        guard let attStr = contentStyle.attributedStr else {
+            contentTextView.font = contentStyle.font
+            contentTextView.textColor = contentStyle.textColor
+            contentTextView.textAlignment = contentStyle.textAlignment
+            return contentTextView
+        }
         contentTextView.isEditable = false
         contentTextView.isSelectable = false
         return contentTextView
@@ -78,6 +85,12 @@ public class ZQAlertController: ZQAlertBaseController {
         super.viewDidLoad()
         setupView()
         layoutSubViews()
+    }
+    
+    public override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        styleManager.keyboardStyle.showClosure = nil
+        styleManager.keyboardStyle.hideClosure = nil
     }
     
     /// contentView的frame发生改变 以及 view.addSubview(contentView),都会触发该方法,因此不要在这里执行计算和布局
@@ -96,7 +109,7 @@ public extension ZQAlertController {
     
     fileprivate func setupButton(withTitle title:String, type:ZQAlertButtonStyle, click:ZQAlertButtonClick? = nil) -> Void {
         var buttonStyle:ZQAlertBaseButtonStyle = styleManager.normalButtonStyle
-        if type == .cacel {
+        if type == .cancel {
             buttonStyle = styleManager.cancelButtonStyle
         }
         let button:UIButton = UIButton.init(type: .custom)
@@ -129,10 +142,10 @@ public extension ZQAlertController {
             return
         }
         view.addSubview(contentView)
-        if !String.zq_isEmpty(str: alertTitle) {
+        if !String.zq_isEmpty(str: alertTitle) || !NSAttributedString.zq_isEmpty(str: styleManager.titleStyle.attributedStr) {
             contentView.addSubview(titleTextView)
         }
-        if !String.zq_isEmpty(str: alertMessage) {
+        if !String.zq_isEmpty(str: alertMessage) || !NSAttributedString.zq_isEmpty(str: styleManager.contentStyle.attributedStr) {
             contentView.addSubview(contentTextView)
         }
     }
@@ -218,6 +231,10 @@ public extension ZQAlertController {
             contentHeight = contentTextView.zq_height
             layouButton(buttonHeight: buttonHeight, contentHeight: contentHeight)
         }
+        
+        /// 显示完,移除标题和内容,不然下次还会显示
+        styleManager.titleStyle.attributedStr = nil
+        styleManager.contentStyle.attributedStr = nil
     }
     
     fileprivate func layoutTextView(textView:UITextView) -> Void {
@@ -232,13 +249,23 @@ public extension ZQAlertController {
     
     fileprivate func layoutTitleTextView(titleInsets:UIEdgeInsets) -> Void {
         titleTextView.textContainerInset = titleInsets
-        titleTextView.text = alertTitle
+        if let attributedText = styleManager.titleStyle.attributedStr {
+            titleTextView.attributedText = attributedText
+        }
+        else {
+            titleTextView.text = alertTitle
+        }
         layoutTextView(textView: titleTextView)
     }
     
     fileprivate func layoutContentTextView(contentInsets:UIEdgeInsets) -> Void {
         contentTextView.textContainerInset = contentInsets
-        contentTextView.text = alertMessage
+        if let attributedText = styleManager.contentStyle.attributedStr {
+            contentTextView.attributedText = attributedText
+        }
+        else {
+            contentTextView.text = alertMessage
+        }
         layoutTextView(textView: contentTextView)
     }
     
@@ -298,7 +325,8 @@ public extension ZQAlertController {
     
     @discardableResult
     public class func alert(withTitle title:String?, message:String?) -> ZQAlertController {
-        if String.zq_isEmpty(str: title) && String.zq_isEmpty(str: message) {
+        let styleManager = ZQAlertStyleManager.default
+        if String.zq_isEmpty(str: title) && String.zq_isEmpty(str: message) && styleManager.titleStyle.attributedStr == nil && styleManager.contentStyle.attributedStr == nil {
             showException(withReason: "Can not show \(self): need title or message at least one")
         }
         let alert:ZQAlertController = ZQAlertController()

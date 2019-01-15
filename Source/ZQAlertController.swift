@@ -360,9 +360,17 @@ public extension ZQAlertController {
 public extension ZQAlertController {
     @objc fileprivate func actionForAlertButton(_ sender:UIButton) -> Void {
         if sender.isEqual(leftButton) {
-            leftButtonClick?()
+            if leftButtonClick != nil {
+                leftButtonClick!()
+            } else {
+                dismissAlertController()
+            }
         } else if sender.isEqual(rightButton) {
-            rightButtonClick?()
+            if rightButtonClick != nil {
+                rightButtonClick!()
+            } else {
+                dismissAlertController()
+            }
         }
     }
 }

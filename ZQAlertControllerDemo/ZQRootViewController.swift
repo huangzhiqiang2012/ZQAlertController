@@ -64,7 +64,10 @@ extension ZQRootViewController {
             styleManager.titleStyle.textColor = UIColor.blue
             styleManager.titleStyle.font = UIFont.boldSystemFont(ofSize: 20)
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title and one button", message:nil)
-            alert.addButton(withTitle: "One button", type: .normal) {
+            alert.addButton(withTitle: "One button", type: .normal) {[weak alert] in
+                if let weakAlert = alert {
+                    weakAlert.dismissAlertController()
+                }
                 ZQLog(message: "--__--|| 点击了按钮")
             }
             alert.showAlertController()
@@ -77,10 +80,12 @@ extension ZQRootViewController {
             styleManager.cancelButtonStyle.highlightBackgroundColor = UIColor.blue
             styleManager.normalButtonStyle.textColor = UIColor.brown
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title and two button", message:nil)
-            alert.addButton(withTitle: "Cancel", type: .cancel) {
+            alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| Cancel")
             }
-            alert.addButton(withTitle: "OK", type: .normal) {
+            alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| OK")
             }
             alert.showAlertController()
@@ -97,7 +102,8 @@ extension ZQRootViewController {
             styleManager.titleStyle.textColor = UIColor.red
             styleManager.titleStyle.font = UIFont.boldSystemFont(ofSize: 20)
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title", message: "Content")
-            alert.addButton(withTitle: "One button", type: .normal) {
+            alert.addButton(withTitle: "One button", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| 点击了按钮")
             }
             alert.showAlertController()
@@ -107,10 +113,12 @@ extension ZQRootViewController {
             styleManager.titleStyle.textColor = UIColor.red
             styleManager.titleStyle.font = UIFont.boldSystemFont(ofSize: 20)
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title", message: "Content")
-            alert.addButton(withTitle: "Cancel", type: .cancel) {
+            alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| Cancel")
             }
-            alert.addButton(withTitle: "OK", type: .normal) {
+            alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| OK")
             }
             alert.showAlertController()
@@ -135,10 +143,12 @@ extension ZQRootViewController {
             styleManager.contentStyle.attributedStr = (attStr.copy() as! NSAttributedString)
             
             let alert:ZQAlertController = ZQAlertController.alert(withTitle:"设置了也无效", message: "设置了也无效")
-            alert.addButton(withTitle: "Cancel", type: .cancel) {
+            alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| Cancel")
             }
-            alert.addButton(withTitle: "OK", type: .normal) {
+            alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| OK")
             }
             alert.showAlertController()
@@ -149,10 +159,12 @@ extension ZQRootViewController {
             styleManager.titleStyle.font = UIFont.boldSystemFont(ofSize: 20)
             styleManager.contentViewStyle.maxHeight = 300
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog Title too loog ", message: "设置了也无效")
-            alert.addButton(withTitle: "Cancel", type: .cancel) {
+            alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| Cancel")
             }
-            alert.addButton(withTitle: "OK", type: .normal) {
+            alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| OK")
             }
             alert.showAlertController()
@@ -162,10 +174,12 @@ extension ZQRootViewController {
             styleManager.contentStyle.textColor = UIColor.blue
             styleManager.contentViewStyle.maxHeight = 300
             let alert:ZQAlertController = ZQAlertController.alert(withTitle: nil, message: "Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog Content too loog ")
-            alert.addButton(withTitle: "Cancel", type: .cancel) {
+            alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| Cancel")
             }
-            alert.addButton(withTitle: "OK", type: .normal) {
+            alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+                alert.dismissAlertController()
                 ZQLog(message: "--__--|| OK")
             }
             alert.showAlertController()
@@ -202,10 +216,12 @@ extension ZQRootViewController {
         default:break
         }
         let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Title", message: message)
-        alert.addButton(withTitle: "Cancel", type: .cancel) {
+        alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| Cancel")
         }
-        alert.addButton(withTitle: "OK", type: .normal) {
+        alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| OK")
         }
         alert.showAlertController()
@@ -229,10 +245,12 @@ extension ZQRootViewController {
             styleManager.backgroundStyle.blurStyle.maskImage = UIImage(imageLiteralResourceName: "fire")
         default:break
         }
-        alert.addButton(withTitle: "Cancel", type: .cancel) {
+        alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| Cancel")
         }
-        alert.addButton(withTitle: "OK", type: .normal) {
+        alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| OK")
         }
         alert.showAlertController()
@@ -306,10 +324,12 @@ extension ZQRootViewController {
         styleManager.cancelButtonStyle.highlightBackgroundColor = UIColor.blue
         
         let alert:ZQAlertController = ZQAlertController.alert(withTitle: "Cutom animation", message: message)
-        alert.addButton(withTitle: "Cancel", type: .cancel) {
+        alert.addButton(withTitle: "Cancel", type: .cancel) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| Cancel")
         }
-        alert.addButton(withTitle: "OK", type: .normal) {
+        alert.addButton(withTitle: "OK", type: .normal) {[unowned alert] in
+            alert.dismissAlertController()
             ZQLog(message: "--__--|| OK")
         }
         alert.showAlertController()
